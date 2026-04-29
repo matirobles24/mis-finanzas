@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+<meta name="apple-mobile-web-app-title" content="Mis Finanzas"/>
+<meta name="theme-color" content="#0f1117"/>
+<title>Mis Finanzas</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0f1117;--surface:#181c26;--surface2:#1e2333;--border:#ffffff14;
+  --text:#f0ede8;--muted:#6e7489;--accent:#c8f55a;--red:#ff6b6b;--green:#c8f55a;
+  --font:'DM Mono',monospace;--display:'DM Serif Display',serif;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);overflow:hidden}
+body{display:flex;flex-direction:column;max-width:480px;margin:0 auto}
+
+.header{padding:48px 20px 12px;flex-shrink:0}
+.header-row{display:flex;justify-content:space-between;align-items:flex-end}
+.app-title{font-family:var(--display);font-size:26px;line-height:1}
+.app-month{font-size:10px;color:var(--muted);margin-top:3px;letter-spacing:.08em;text-transform:uppercase}
+.bal-box{text-align:right}
+.bal-label{font-size:9px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.bal-val{font-size:20px;font-weight:500;margin-top:1px}
+.pos{color:var(--green)}.neg{color:var(--red)}
+
+.sumbar{display:flex;gap:8px;padding:12px 20px;flex-shrink:0}
+.sc{flex:1;background:var(--surface);border-radius:12px;padding:10px 12px;border:1px solid var(--border)}
+.sc-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.sc-val{font-size:15px;font-weight:500;margin-top:3px}
+
+.tabs{display:flex;gap:6px;padding:0 20px 10px;flex-shrink:0}
+.tab{flex:1;padding:9px 4px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:var(--font);font-size:12px;cursor:pointer;transition:all .15s}
+.tab.active{background:var(--accent);color:#0f1117;border-color:var(--accent);font-weight:500}
+
+.page{display:none;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:4px 20px 110px}
+.page.active{display:block}
+.page::-webkit-scrollbar{display:none}
+
+.form-card{background:var(--surface);border-radius:16px;padding:16px;border:1px solid var(--border);margin-bottom:14px}
+.fc-title{font-size:10px;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:12px}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:9px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px}
+.field input,.field select{
+  width:100%;background:var(--surface2);border:1px solid var(--border);
+  border-radius:10px;padding:11px 13px;color:var(--text);
+  font-family:var(--font);font-size:14px;outline:none;
+  -webkit-appearance:none;appearance:none
+}
+.field input:focus,.field select:focus{border-color:#ffffff28}
+.field input::placeholder{color:var(--muted)}
+.field select option{background:#1e2333}
+.frow{display:flex;gap:8px}.frow .field{flex:1}
+.btn-add{
+  width:100%;padding:13px;border-radius:12px;border:none;
+  background:var(--accent);color:#0f1117;font-family:var(--font);
+  font-size:14px;font-weight:500;cursor:pointer;margin-top:2px
+}
+.btn-add:active{opacity:.8}
+
+.sec-label{font-size:10px;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px;margin-top:2px}
+.item{
+  display:flex;align-items:center;gap:10px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:12px 14px;margin-bottom:8px;
+  animation:fi .2s ease
+}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.iinfo{flex:1;min-width:0}
+.idesc{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.imeta{font-size:11px;color:var(--muted);margin-top:2px}
+.iamt{font-size:15px;font-weight:500;flex-shrink:0}
+.ibtn{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:2px 4px;line-height:1}
+.empty{text-align:center;padding:32px 0;color:var(--muted);font-size:13px}
+
+/* Resumen */
+.res-header{background:var(--surface);border-radius:16px;padding:18px;border:1px solid var(--border);margin-bottom:12px}
+.res-big{font-family:var(--display);font-size:36px;margin-bottom:4px}
+.res-sub{font-size:11px;color:var(--muted)}
+.res-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.rg-card{background:var(--surface);border-radius:12px;padding:12px 14px;border:1px solid var(--border)}
+.rg-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.rg-val{font-size:18px;font-weight:500;margin-top:4px}
+.cat-section{background:var(--surface);border-radius:14px;padding:14px;border:1px solid var(--border);margin-bottom:10px}
+.cat-title{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.cat-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:12px}
+.cat-name{min-width:100px;color:var(--muted)}
+.cat-bar-wrap{flex:1;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.cat-bar{height:100%;border-radius:3px}
+.cat-amt{min-width:70px;text-align:right;font-size:12px;font-weight:500}
+.month-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.mnav-btn{background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:8px 14px;font-family:var(--font);font-size:13px;cursor:pointer}
+.mnav-btn:active{opacity:.7}
+.mnav-label{font-size:13px;font-weight:500}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-row">
+    <div>
+      <div class="app-title">Mis Finanzas</div>
+      <div class="app-month" id="hdr-month">—</div>
+    </div>
+    <div class="bal-box">
+      <div class="bal-label">Balance</div>
+      <div class="bal-val" id="hdr-bal">$0</div>
+    </div>
+  </div>
+</div>
+
+<div class="sumbar">
+  <div class="sc"><div class="sc-label">Ingresos</div><div class="sc-val pos" id="sb-ing">$0</div></div>
+  <div class="sc"><div class="sc-label">Gastos</div><div class="sc-val neg" id="sb-gas">$0</div></div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab(0)">Gastos</button>
+  <button class="tab" onclick="showTab(1)">Ingresos</button>
+  <button class="tab" onclick="showTab(2)">Resumen</button>
+</div>
+
+<!-- GASTOS -->
+<div class="page active" id="page-0">
+  <div class="form-card">
+    <div class="fc-title">Nuevo gasto</div>
+    <div class="field"><label>Descripción</label><input id="g-desc" type="text" placeholder="Ej: supermercado, uber..."/></div>
+    <div class="frow">
+      <div class="field"><label>Monto $</label><input id="g-amt" type="number" inputmode="decimal" placeholder="0,00" min="0" step="0.01"/></div>
+      <div class="field"><label>Categoría</label>
+        <select id="g-cat">
+          <option value="Alimentación">Alimentación</option>
+          <option value="Transporte">Transporte</option>
+          <option value="Salud">Salud</option>
+          <option value="Educación">Educación</option>
+          <option value="Entretenimiento">Entretenimiento</option>
+          <option value="Ropa">Ropa</option>
+          <option value="Hogar">Hogar</option>
+          <option value="Servicios">Servicios</option>
+          <option value="Otros">Otros</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-add" onclick="addGasto()">+ Agregar gasto</button>
+  </div>
+  <div class="sec-label">Registros del mes</div>
+  <div id="lista-gastos"></div>
+</div>
+
+<!-- INGRESOS -->
+<div class="page" id="page-1">
+  <div class="form-card">
+    <div class="fc-title">Nuevo ingreso</div>
+    <div class="field"><label>Descripción</label><input id="i-desc" type="text" placeholder="Ej: sueldo, freelance..."/></div>
+    <div class="frow">
+      <div class="field"><label>Monto $</label><input id="i-amt" type="number" inputmode="decimal" placeholder="0,00" min="0" step="0.01"/></div>
+      <div class="field"><label>Categoría</label>
+        <select id="i-cat">
+          <option value="Sueldo">Sueldo</option>
+          <option value="Freelance">Freelance</option>
+          <option value="Negocio">Negocio</option>
+          <option value="Inversiones">Inversiones</option>
+          <option value="Regalo">Regalo</option>
+          <option value="Otros">Otros</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-add" onclick="addIngreso()">+ Agregar ingreso</button>
+  </div>
+  <div class="sec-label">Registros del mes</div>
+  <div id="lista-ingresos"></div>
+</div>
+
+<!-- RESUMEN -->
+<div class="page" id="page-2">
+  <div class="month-nav">
+    <button class="mnav-btn" onclick="changeMonth(-1)">&#8592;</button>
+    <span class="mnav-label" id="res-month-label">—</span>
+    <button class="mnav-btn" onclick="changeMonth(1)">&#8594;</button>
+  </div>
+  <div class="res-header">
+    <div class="res-sub">Balance del mes</div>
+    <div class="res-big" id="res-bal">$0</div>
+  </div>
+  <div class="res-grid">
+    <div class="rg-card"><div class="rg-label">Ingresos</div><div class="rg-val pos" id="res-ing">$0</div></div>
+    <div class="rg-card"><div class="rg-label">Gastos</div><div class="rg-val neg" id="res-gas">$0</div></div>
+  </div>
+  <div class="cat-section">
+    <div class="cat-title">Gastos por categoría</div>
+    <div id="cat-gas"></div>
+  </div>
+  <div class="cat-section">
+    <div class="cat-title">Ingresos por categoría</div>
+    <div id="cat-ing"></div>
+  </div>
+</div>
+
+<script>
+const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const CAT_COLORS = {
+  'Alimentación':'#c8f55a','Transporte':'#60a5fa','Salud':'#f472b6','Educación':'#a78bfa',
+  'Entretenimiento':'#fb923c','Ropa':'#fbbf24','Hogar':'#34d399','Servicios':'#94a3b8',
+  'Otros':'#6e7489','Sueldo':'#c8f55a','Freelance':'#60a5fa','Negocio':'#a78bfa',
+  'Inversiones':'#fbbf24','Regalo':'#f472b6'
+};
+
+let gastos = [], ingresos = [];
+let viewYear, viewMonth;
+
+function today() { const d = new Date(); return d.toISOString().slice(0,10); }
+function nowYear() { return new Date().getFullYear(); }
+function nowMonth() { return new Date().getMonth(); }
+function mkKey(y,m) { return y+'-'+String(m+1).padStart(2,'0'); }
+function parseKey(k) { const [y,m]=k.split('-'); return {y:+y,m:+m-1}; }
+function fmt(v) { return '$'+Math.abs(v).toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+function load() {
+  try { gastos = JSON.parse(localStorage.getItem('mf_gastos')||'[]'); } catch(e){gastos=[];}
+  try { ingresos = JSON.parse(localStorage.getItem('mf_ingresos')||'[]'); } catch(e){ingresos=[];}
+  viewYear = nowYear(); viewMonth = nowMonth();
+}
+function save() {
+  localStorage.setItem('mf_gastos', JSON.stringify(gastos));
+  localStorage.setItem('mf_ingresos', JSON.stringify(ingresos));
+}
+
+function showTab(i) {
+  document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',i===j));
+  document.querySelectorAll('.page').forEach((p,j)=>p.classList.toggle('active',i===j));
+  if(i===2){renderResumen();}
+}
+
+function addGasto() {
+  const desc=document.getElementById('g-desc').value.trim();
+  const amt=parseFloat(document.getElementById('g-amt').value);
+  const cat=document.getElementById('g-cat').value;
+  if(!desc||isNaN(amt)||amt<=0){alert('Completá descripción y monto.');return;}
+  gastos.unshift({desc,amt,cat,date:today(),id:Date.now()});
+  save(); renderAll();
+  document.getElementById('g-desc').value='';
+  document.getElementById('g-amt').value='';
+}
+
+function addIngreso() {
+  const desc=document.getElementById('i-desc').value.trim();
+  const amt=parseFloat(document.getElementById('i-amt').value);
+  const cat=document.getElementById('i-cat').value;
+  if(!desc||isNaN(amt)||amt<=0){alert('Completá descripción y monto.');return;}
+  ingresos.unshift({desc,amt,cat,date:today(),id:Date.now()});
+  save(); renderAll();
+  document.getElementById('i-desc').value='';
+  document.getElementById('i-amt').value='';
+}
+
+function del(type,id) {
+  if(type==='g') gastos=gastos.filter(x=>x.id!==id);
+  else ingresos=ingresos.filter(x=>x.id!==id);
+  save(); renderAll();
+}
+
+function getKey(item){return item.date?item.date.slice(0,7):mkKey(nowYear(),nowMonth());}
+
+function renderAll() {
+  const curKey = mkKey(nowYear(),nowMonth());
+  const mGas = gastos.filter(x=>getKey(x)===curKey);
+  const mIng = ingresos.filter(x=>getKey(x)===curKey);
+  const totalGas = mGas.reduce((s,x)=>s+x.amt,0);
+  const totalIng = mIng.reduce((s,x)=>s+x.amt,0);
+  const bal = totalIng - totalGas;
+
+  document.getElementById('hdr-month').textContent = MONTHS[nowMonth()]+' '+nowYear();
+  const balEl = document.getElementById('hdr-bal');
+  balEl.textContent = (bal<0?'-':'')+fmt(bal);
+  balEl.className = 'bal-val '+(bal>=0?'pos':'neg');
+  document.getElementById('sb-ing').textContent = fmt(totalIng);
+  document.getElementById('sb-gas').textContent = fmt(totalGas);
+
+  const lg = document.getElementById('lista-gastos');
+  lg.innerHTML = mGas.length ? mGas.map(g=>`
+    <div class="item">
+      <div class="dot" style="background:${CAT_COLORS[g.cat]||'#6e7489'}"></div>
+      <div class="iinfo">
+        <div class="idesc">${g.desc}</div>
+        <div class="imeta">${g.cat} · ${g.date.slice(8)+'/'+ g.date.slice(5,7)}</div>
+      </div>
+      <div class="iamt neg">-${fmt(g.amt)}</div>
+      <button class="ibtn" onclick="del('g',${g.id})">×</button>
+    </div>`).join('') : '<div class="empty">Sin gastos este mes</div>';
+
+  const li = document.getElementById('lista-ingresos');
+  li.innerHTML = mIng.length ? mIng.map(i=>`
+    <div class="item">
+      <div class="dot" style="background:${CAT_COLORS[i.cat]||'#c8f55a'}"></div>
+      <div class="iinfo">
+        <div class="idesc">${i.desc}</div>
+        <div class="imeta">${i.cat} · ${i.date.slice(8)+'/'+ i.date.slice(5,7)}</div>
+      </div>
+      <div class="iamt pos">+${fmt(i.amt)}</div>
+      <button class="ibtn" onclick="del('i',${i.id})">×</button>
+    </div>`).join('') : '<div class="empty">Sin ingresos este mes</div>';
+}
+
+function changeMonth(dir) {
+  viewMonth += dir;
+  if(viewMonth>11){viewMonth=0;viewYear++;}
+  if(viewMonth<0){viewMonth=11;viewYear--;}
+  renderResumen();
+}
+
+function renderResumen() {
+  const key = mkKey(viewYear,viewMonth);
+  document.getElementById('res-month-label').textContent = MONTHS[viewMonth]+' '+viewYear;
+  const mGas = gastos.filter(x=>getKey(x)===key);
+  const mIng = ingresos.filter(x=>getKey(x)===key);
+  const totalGas = mGas.reduce((s,x)=>s+x.amt,0);
+  const totalIng = mIng.reduce((s,x)=>s+x.amt,0);
+  const bal = totalIng - totalGas;
+
+  const balEl = document.getElementById('res-bal');
+  balEl.textContent = (bal<0?'-':'')+fmt(bal);
+  balEl.className = 'res-big '+(bal>=0?'pos':'neg');
+  document.getElementById('res-ing').textContent = fmt(totalIng);
+  document.getElementById('res-gas').textContent = fmt(totalGas);
+
+  const catG={}, catI={};
+  mGas.forEach(x=>{catG[x.cat]=(catG[x.cat]||0)+x.amt;});
+  mIng.forEach(x=>{catI[x.cat]=(catI[x.cat]||0)+x.amt;});
+  const maxG=Math.max(...Object.values(catG),1);
+  const maxI=Math.max(...Object.values(catI),1);
+
+  document.getElementById('cat-gas').innerHTML = Object.keys(catG).length
+    ? Object.entries(catG).sort((a,b)=>b[1]-a[1]).map(([cat,amt])=>`
+      <div class="cat-row">
+        <div class="cat-name">${cat}</div>
+        <div class="cat-bar-wrap"><div class="cat-bar" style="width:${(amt/maxG*100).toFixed(1)}%;background:${CAT_COLORS[cat]||'#6e7489'}"></div></div>
+        <div class="cat-amt neg">-${fmt(amt)}</div>
+      </div>`).join('')
+    : '<div style="font-size:12px;color:var(--muted)">Sin gastos</div>';
+
+  document.getElementById('cat-ing').innerHTML = Object.keys(catI).length
+    ? Object.entries(catI).sort((a,b)=>b[1]-a[1]).map(([cat,amt])=>`
+      <div class="cat-row">
+        <div class="cat-name">${cat}</div>
+        <div class="cat-bar-wrap"><div class="cat-bar" style="width:${(amt/maxI*100).toFixed(1)}%;background:${CAT_COLORS[cat]||'#c8f55a'}"></div></div>
+        <div class="cat-amt pos">+${fmt(amt)}</div>
+      </div>`).join('')
+    : '<div style="font-size:12px;color:var(--muted)">Sin ingresos</div>';
+}
+
+load();
+renderAll();
+</script>
+</body>
+</html>
