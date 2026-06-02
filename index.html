@@ -33,12 +33,7 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto}
 .sc-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
 .sc-val{font-size:15px;font-weight:500;margin-top:3px}
 
-/* Ahorro acumulado */
-.ahorro-bar{padding:0 20px 10px;flex-shrink:0}
-.ahorro-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center}
-.ahorro-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-.ahorro-val{font-size:15px;font-weight:500;margin-top:2px}
-.ahorro-sub{font-size:9px;color:var(--muted);margin-top:1px}
+
 
 .tabs{display:flex;gap:6px;padding:0 20px 10px;flex-shrink:0}
 .tab{flex:1;padding:9px 4px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:var(--font);font-size:12px;cursor:pointer;transition:all .15s}
@@ -165,10 +160,6 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto}
   <div class="sc"><div class="sc-label">Gastos</div><div class="sc-val neg" id="sb-gas">$0</div></div>
 </div>
 
-<div class="ahorro-bar">
-  <div class="ahorro-card">
-    <div>
-      <div class="ahorro-label">Ahorro acumulado</div>
       <div class="ahorro-val" id="ahorro-total">$0</div>
       <div class="ahorro-sub" id="ahorro-sub">desde el inicio</div>
     </div>
@@ -462,22 +453,6 @@ function renderAll() {
   document.getElementById('sb-ing').textContent = fmt(totalIng);
   document.getElementById('sb-gas').textContent = fmt(totalGas);
 
-  // Ahorro acumulado total
-  const totalIngAll = ingresos.reduce((s,x)=>s+x.amt,0);
-  const totalGasAll = gastos.reduce((s,x)=>s+x.amt,0);
-  const ahorroTotal = totalIngAll - totalGasAll;
-  const ahorroMes = bal;
-  const ahorroTotalEl = document.getElementById('ahorro-total');
-  ahorroTotalEl.textContent = (ahorroTotal<0?'-':'')+fmt(ahorroTotal);
-  ahorroTotalEl.className = 'ahorro-val '+(ahorroTotal>=0?'pos':'neg');
-  const ahorroMesEl = document.getElementById('ahorro-mes');
-  ahorroMesEl.textContent = (ahorroMes<0?'-':'')+fmt(ahorroMes);
-  ahorroMesEl.className = 'ahorro-val '+(ahorroMes>=0?'pos':'neg');
-
-  // Contar meses con datos
-  const allKeys = new Set([...gastos.map(x=>getKey(x)), ...ingresos.map(x=>getKey(x))]);
-  const nMeses = allKeys.size;
-  document.getElementById('ahorro-sub').textContent = nMeses > 1 ? `${nMeses} meses registrados` : 'desde el inicio';
 
   renderListGastos();
   renderListIngresos();
